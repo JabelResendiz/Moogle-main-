@@ -6,8 +6,5 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MathNet.Numerics.FSharp" Version="5.0.0" />
-  </ItemGroup>
-
+  
 </Project>

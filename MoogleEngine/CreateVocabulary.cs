@@ -31,7 +31,7 @@ namespace MoogleEngine{
         // WordsDocument es la cantidad de documentos en los que aparece una palabra del vocabulario
         // hashGlobal es el vocabulario de palabras 
        // por cada documentos voy a necesitar sacar mucha informacion valiosa, vamos a crear la clase File
-        public List<Files> VectorFiles(ref Dictionary<string, double > WordsDocument,ref HashSet<string>hashglobal){
+        public List<Files> VectorFiles(ref Dictionary<string, double > WordsDocument,ref HashSet<string>hashglobal,ref List<string>bagOfWords){
 
             List<Files>Document= new List<Files>();
             double number=0;
@@ -52,6 +52,7 @@ namespace MoogleEngine{
                     if(!hashglobal.Contains(text[i])){
                         
                         hashglobal.Add(text[i]);
+                        bagOfWords.Add(text[i]);
                     }
 
                     // si es primera vez que la palabra es mencionada en el doc ver si ya esta en wordsDocument

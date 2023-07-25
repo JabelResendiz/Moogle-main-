@@ -10,16 +10,17 @@ namespace MoogleEngine{
 
         Dictionary<string, double> WordsDocument;// cantidad de doc en los que aparece la palabra
         HashSet<string> hashglobal;                     // Contiene todas las palabras que aparecen en todos los documentos (sin repetir)
-                                                    // [Facil y rapida verificacion de aparicion o no de la palabra]
+        List<string>bagOfWords;                             // [Facil y rapida verificacion de aparicion o no de la palabra]
         List<Files> Document;  // los objetos de documentos 
 
        // constructor de la clase 
         public Principal(){
             WordsDocument = new Dictionary<string, double>();
             hashglobal = new HashSet<string>();
-            Document = this.CreateVocabulary.VectorFiles(ref WordsDocument , ref hashglobal);
+            bagOfWords= new List<string>();
+            Document = this.CreateVocabulary.VectorFiles(ref WordsDocument , ref hashglobal,ref bagOfWords);
             CalculateTFIDF(ref Document);
-
+            bagOfWords.Sort(OrderLength);
         }
 
         //////// metodo encargado de darle un valor tf*idf a cada palabra de los documents
@@ -38,10 +39,6 @@ namespace MoogleEngine{
                 
             }
         }
-
-
-
-        // el metodo de la sugerencia falta 
 
 
 
@@ -69,6 +66,12 @@ namespace MoogleEngine{
             return (a.Score>=b.Score)?-1:1;
         }
 
+// ordenar las palabras de bagOfWords por su tamano
+        int OrderLength(string a, string b){
+        if(a.Length < b.Length)
+            return -1;
+        return 1;
+    }
         // este metodo analizara el proceso de calculo vectorial
         //VectorQuery es el vector del query 
         //IncrementScoreDocument es el valor que ya se le va asignando a cada docuemnto entre 0 y 1 de acuerdo al operador cercania
@@ -169,5 +172,39 @@ namespace MoogleEngine{
             return Query;// return la lista de objetos 
         }
 
+
+// metodo de la sugerencia para cadenas donde no hay una coincidencia fuerte
+        // dentro de los textos de la base de dato
+        // Explicacion:
+    /*
+    1. Busca en el vocabulario de palabras del corpus si la palabra esta: en caso de estarlo pues
+    agregar la palabra al texto de la sugerencia. Si no llama al metodo Suggest
+    2. En Suggest se encarga de buscar el rango de palabras cuya longitud oscile entre uno hasta 2 caracteres
+    3.Esta busqueda la hace a traves del metodo Search con algoritmo de Busqueda Binaria
+    4. LevinshteinDistance es el metodo que mide las palabras dentro de ese rango y devuelve la diferencia de
+    caracteres entre cada palabra del rango y la actual tomada
+    5. Suggest termina viendo la palabra con menor valor de entre estas y guardando para la sugerencia
+    */
+        public string GetSuggestion(string text)
+    {
+        List<string> suggest = new List<string>();
+        string[] words = this.Normalizate.Filter(text);
+
+        /// Corrige cada palabra en caso de que esté mal escrita.
+        foreach (string word in words)
+        {
+            if(!hashglobal.Contains(word))
+                // si no esta en el vocabulario pues llama el metodo sugerencia
+                suggest.Add(this.AplicatedMath.Suggest(bagOfWords, word));
+            else
+                //en otro caso la agrega a la lista sugerencia
+                suggest.Add(word);
+        }
+
+        string sugestText = String.Join(" ", suggest);
+
+        return sugestText;
+    }
+    
     }
 }
